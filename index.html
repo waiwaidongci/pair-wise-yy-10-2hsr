@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>小型漆线雕工坊管理</title>
+  <title>线材回潮准入与贴线复核台 · 漆线雕工坊</title>
   <style>
     :root {
       --bg: #eef3f0;
@@ -15,275 +15,205 @@
       --red: #a43f42;
       --amber: #aa7a24;
       --violet: #665c93;
+      --green: #2f7d4f;
+      --slate: #5d6764;
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    header { padding: 22px 28px 16px; border-bottom: 1px solid var(--line); background: #fbfdfb; display: flex; justify-content: space-between; gap: 18px; align-items: end; }
-    h1 { margin: 0; font-size: 26px; letter-spacing: 0; }
-    .sub, .meta { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    header { padding: 22px 28px 16px; border-bottom: 1px solid var(--line); background: #fbfdfb; display: flex; justify-content: space-between; gap: 18px; align-items: end; flex-wrap: wrap; }
+    h1 { margin: 0; font-size: 24px; }
+    h2 { margin: 0 0 12px; font-size: 16px; }
+    h3 { margin: 0 0 8px; font-size: 14px; }
+    .sub, .meta { color: var(--muted); font-size: 13px; line-height: 1.55; }
     main { padding: 20px 28px 34px; display: grid; gap: 18px; }
-    button, input, select, textarea { font: inherit; border-radius: 6px; }
-    input, select, textarea { width: 100%; border: 1px solid var(--line); padding: 9px 10px; background: #fff; color: var(--ink); }
-    textarea { min-height: 68px; resize: vertical; }
-    button { border: 0; background: var(--teal); color: #fff; padding: 9px 11px; cursor: pointer; min-height: 38px; }
-    button.secondary { background: #5d6764; }
+    button, input, select { font: inherit; border-radius: 6px; }
+    input, select { width: 100%; border: 1px solid var(--line); padding: 9px 10px; background: #fff; color: var(--ink); }
+    button { border: 0; background: var(--teal); color: #fff; padding: 9px 11px; cursor: pointer; min-height: 36px; }
+    button.secondary { background: var(--slate); }
     button.warn { background: var(--amber); }
     button.danger { background: var(--red); }
     button.violet { background: var(--violet); }
+    button.small { font-size: 12px; padding: 6px 8px; min-height: 30px; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
     label { display: grid; gap: 5px; font-size: 12px; color: var(--muted); }
-    .top { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+    .top { display: grid; grid-template-columns: 350px 1fr; gap: 18px; align-items: start; }
     .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
-    .panel h2 { margin: 0 0 12px; font-size: 17px; }
-    form { display: grid; gap: 10px; }
+    form.formblock { display: grid; gap: 10px; border-top: 1px dashed var(--line); padding-top: 12px; margin-top: 12px; }
+    form.formblock:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    form.formblock button { width: 100%; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
-    .lists { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-    .mini { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfdfb; min-height: 118px; }
-    .mini h3 { margin: 0 0 8px; font-size: 14px; }
-    .item { border: 1px solid #d7e0dc; border-left: 4px solid var(--teal); background: #fff; border-radius: 7px; padding: 9px; margin-bottom: 8px; cursor: pointer; }
-    .item.overdue { border-left-color: var(--red); }
-    .board { display: grid; grid-template-columns: repeat(4, minmax(185px, 1fr)); gap: 12px; overflow-x: auto; }
-    .col { background: #f9fbf9; border: 1px solid var(--line); border-radius: 8px; padding: 10px; min-height: 320px; }
-    .col h3 { display: flex; justify-content: space-between; margin: 0 0 10px; font-size: 15px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
-    .actions button { flex: 1; min-width: 82px; font-size: 12px; padding: 7px 8px; }
+    .board { display: grid; grid-template-columns: repeat(4, minmax(175px, 1fr)); gap: 12px; }
+    .col { background: #f9fbf9; border: 1px solid var(--line); border-radius: 8px; padding: 10px; min-height: 260px; }
+    .col h3 { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+    .card { border: 1px solid #d7e0dc; border-left: 4px solid var(--teal); background: #fff; border-radius: 7px; padding: 9px; margin-bottom: 8px; }
+    .card.review { border-left-color: var(--violet); }
+    .card.done { border-left-color: var(--green); }
+    .card.wait { border-left-color: var(--slate); }
+    .progress-track { height: 7px; background: #e3ebe7; border-radius: 4px; overflow: hidden; margin: 6px 0; }
+    .progress-fill { height: 100%; background: var(--teal); }
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .actions button { flex: 1; min-width: 70px; }
+    .tag { display: inline-block; font-size: 11px; border-radius: 10px; padding: 1px 8px; margin: 2px 4px 2px 0; background: #e3ebe7; color: var(--ink); }
+    .tag.ok { background: #dceee2; color: var(--green); }
+    .tag.hold { background: #f6e2df; color: var(--red); }
+    .tag.lock { background: #f5ecd6; color: var(--amber); }
+    .tag.review { background: #e6e2f2; color: var(--violet); }
+    .tag.archived { background: #e7eae8; color: var(--muted); }
+    .batch-row { border: 1px solid #d7e0dc; border-radius: 7px; padding: 9px; margin-bottom: 8px; background: #fbfdfb; }
+    .batch-row.hold { border-left: 4px solid var(--red); }
+    .batch-row.free { border-left: 4px solid var(--green); }
+    .batch-row.busy { border-left: 4px solid var(--amber); }
+    .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+    .summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+    .stat { background: #f9fbf9; border: 1px solid var(--line); border-radius: 8px; padding: 10px; text-align: center; }
+    .stat b { display: block; font-size: 22px; }
+    .stat span { font-size: 12px; color: var(--muted); }
     dialog { border: 1px solid var(--line); border-radius: 8px; width: min(560px, calc(100vw - 24px)); padding: 0; }
     dialog::backdrop { background: rgba(0, 0, 0, 0.3); }
-    .dialog-body { padding: 16px; display: grid; gap: 10px; }
-    .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
-    @media (max-width: 980px) {
+    .dialog-body { padding: 16px; display: grid; gap: 12px; }
+    #toasts { position: fixed; top: 14px; right: 14px; z-index: 50; display: grid; gap: 8px; width: min(420px, calc(100vw - 28px)); }
+    .toast { border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.5; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+    .toast.ok2 { background: var(--teal); }
+    .toast.c409 { background: var(--red); }
+    .toast.c422 { background: var(--amber); }
+    .toast.c4xx { background: var(--slate); }
+    .toast.info { background: var(--violet); }
+    #requestLog { font-size: 12px; color: var(--muted); display: grid; gap: 4px; max-height: 200px; overflow: auto; }
+    #requestLog div { border-bottom: 1px dotted #dbe3df; padding-bottom: 3px; }
+    .req-ok b { color: var(--green); }
+    .req-fail b { color: var(--red); }
+    .hint { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    details summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+    @media (max-width: 1020px) {
       header { display: block; padding: 18px; }
       main { padding: 16px; }
-      .top, .lists, .toolbar { grid-template-columns: 1fr; }
+      .top, .summary { grid-template-columns: 1fr; }
+      .board { grid-template-columns: 1fr; }
       .grid2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <div id="toasts"></div>
+
   <header>
     <div>
-      <h1>小型漆线雕工坊管理</h1>
-      <div class="sub">贴线、阴干、上金粉、待交付的作品流转与缺陷追踪</div>
+      <h1>线材回潮准入与贴线复核台</h1>
+      <div class="sub">
+        漆线雕工坊 · 建档 / 领料 / 复检 / 更正版本化 ·
+        含水率 &gt; 12% 或复检超 7 天只能留检 · 同批贴线未完成不得发第二件（409 不写入）
+      </div>
     </div>
-    <button id="exportBtn" class="secondary">导出 JSON</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="meta" id="clock" style="align-self:center"></span>
+      <button id="refreshBtn" class="secondary">刷新核对状态</button>
+      <button id="exportBtn" class="violet">导出 JSON</button>
+      <button id="resetBtn" class="danger small" title="清除本地数据并恢复演示种子">重置演示数据</button>
+    </div>
   </header>
 
   <main>
     <section class="top">
-      <form id="workForm" class="panel">
-        <h2>新增作品</h2>
-        <div class="grid2">
-          <label>胎体材质<input name="base" required placeholder="脱胎漆器"></label>
-          <label>纹样主题<input name="theme" required placeholder="缠枝莲"></label>
-        </div>
-        <div class="grid2">
-          <label>线条粗细<select name="line"><option>细线</option><option>中线</option><option>粗线</option><option>混合线</option></select></label>
-          <label>贴线进度<input name="progress" type="number" min="0" max="100" value="25"></label>
-        </div>
-        <div class="grid2">
-          <label>阴干日期<input name="dryDate" type="date" required></label>
-          <label>交付日期<input name="delivery" type="date" required></label>
-        </div>
-        <div class="grid2">
-          <label>金粉处理状态<select name="gold"><option>未处理</option><option>试扫粉</option><option>已上金粉</option></select></label>
-          <label>当前状态<select name="status"><option>贴线中</option><option>待阴干</option><option>上金粉</option><option>待交付</option></select></label>
-        </div>
-        <label>缺陷位置<input name="defect" placeholder="右下花瓣断线"></label>
-        <label>备注<textarea name="note" placeholder="客户偏好、修补记录"></textarea></label>
-        <button type="submit">加入工坊</button>
-      </form>
+      <!-- ============ 左侧操作区 ============ -->
+      <div class="panel">
+        <h2>作业操作</h2>
 
-      <section class="panel">
-        <h2>今日与风险</h2>
-        <div class="lists">
-          <div class="mini">
-            <h3>今日待阴干</h3>
-            <div id="todayDry"></div>
+        <form id="pieceForm" class="formblock">
+          <h3>① 工件建档</h3>
+          <div class="grid2">
+            <label>胎体材质<input name="base" required placeholder="脱胎漆器"></label>
+            <label>纹样主题<input name="theme" required placeholder="缠枝莲"></label>
           </div>
-          <div class="mini">
-            <h3>缺陷作品</h3>
-            <div id="defectList"></div>
+          <button type="submit">建档（进入待领料）</button>
+        </form>
+
+        <form id="batchForm" class="formblock">
+          <h3>② 线材批次建档（回潮检测）</h3>
+          <div class="grid2">
+            <label>批次号<input name="batchNo" required placeholder="漆线-戊"></label>
+            <label>含水率（%）<input name="moisture" type="number" step="0.1" min="0" max="100" required value="10.5"></label>
           </div>
-          <div class="mini">
-            <h3>最近交付</h3>
-            <div id="deliveryList"></div>
+          <label>检测日期<input name="checkedAt" type="date" required></label>
+          <button type="submit">批次建档并做准入判定</button>
+        </form>
+
+        <form id="issueForm" class="formblock">
+          <h3>③ 领料</h3>
+          <label>工件<select name="pieceId" required></select></label>
+          <label>线材批次<select name="batchId" required></select></label>
+          <button type="submit">领料（重复/并发沿用首次结果）</button>
+          <button type="button" id="issueConcurrentBtn" class="warn small">模拟并发双发同一领料</button>
+        </form>
+
+        <form id="recheckForm" class="formblock">
+          <h3>④ 线材复检</h3>
+          <div class="grid2">
+            <label>批次<select name="batchId" required></select></label>
+            <label>复检后含水率（%）<input name="moisture" type="number" step="0.1" min="0" max="100" required></label>
           </div>
-        </div>
-        <div class="toolbar">
-          <label>主题筛选<input id="themeFilter" placeholder="输入纹样"></label>
-          <label>状态筛选<select id="statusFilter"></select></label>
-          <label>交付排序<select id="sortMode"><option value="delivery">按交付日期</option><option value="dry">按阴干日期</option></select></label>
-          <button id="clearFilters" class="secondary">清空</button>
-        </div>
-        <div id="board" class="board"></div>
-      </section>
+          <label>复检日期<input name="checkedAt" type="date" required></label>
+          <button type="submit">提交复检并重新判定</button>
+        </form>
+      </div>
+
+      <!-- ============ 右侧核对区 ============ -->
+      <div style="display:grid;gap:18px">
+        <section class="panel">
+          <h2>核对总览</h2>
+          <div class="summary" id="summary"></div>
+          <div class="board" id="board"></div>
+        </section>
+
+        <section class="panel">
+          <h2>线材批次（回潮准入）</h2>
+          <div id="batchList"></div>
+        </section>
+
+        <section class="panel">
+          <h2>旧版留档（不进当前队列）</h2>
+          <div id="archiveList"></div>
+        </section>
+
+        <section class="panel">
+          <details>
+            <summary>请求流水（含 409/422 判定，冲突不写入）</summary>
+            <div id="requestLog" style="margin-top:8px"></div>
+          </details>
+        </section>
+      </div>
     </section>
   </main>
 
-  <dialog id="detailDialog">
+  <!-- 进度 / 更正共用弹窗 -->
+  <dialog id="progressDialog">
     <div class="dialog-body">
-      <h2 id="detailTitle">作品详情</h2>
-      <div id="detailContent" class="meta"></div>
-      <label>记录缺陷
-        <input id="defectInput" placeholder="断线/翘线位置">
-      </label>
+      <h2 id="progressTitle">贴线进度登记</h2>
+      <div id="progressInfo" class="meta"></div>
+      <label>贴线进度（%）<input id="progressInput" type="number" min="0" max="100" value="100"></label>
       <div class="actions">
-        <button id="saveDefect" class="warn">保存缺陷</button>
-        <button id="closeDialog" class="secondary">关闭</button>
+        <button id="progressSave">保存进度</button>
+        <button id="progressClose" class="secondary">关闭</button>
       </div>
     </div>
   </dialog>
 
-  <script>
-    const statuses = ["贴线中", "待阴干", "上金粉", "待交付"];
-    const storageKey = "zfl42Works";
-    const today = new Date().toISOString().slice(0, 10);
-    const seed = [
-      { id: crypto.randomUUID(), base: "木胎香盒", theme: "海水江崖", line: "细线", progress: 70, dryDate: today, gold: "未处理", defect: "", delivery: "2026-06-26", status: "待阴干", note: "边线需保持低浮雕感", logs: ["创建作品"] },
-      { id: crypto.randomUUID(), base: "脱胎盘", theme: "折枝梅", line: "混合线", progress: 95, dryDate: "2026-06-20", gold: "试扫粉", defect: "左侧枝干翘线", delivery: "2026-06-23", status: "上金粉", note: "客户要求金粉偏暗", logs: ["创建作品", "记录翘线"] },
-      { id: crypto.randomUUID(), base: "竹胎笔筒", theme: "云雷纹", line: "中线", progress: 40, dryDate: "2026-06-24", gold: "未处理", defect: "", delivery: "2026-06-30", status: "贴线中", note: "", logs: ["创建作品"] }
-    ];
-    let works = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
-    let activeId = null;
+  <dialog id="correctDialog">
+    <div class="dialog-body">
+      <h2>胎体 / 纹样 / 已领批次更正</h2>
+      <div id="correctInfo" class="meta"></div>
+      <label>胎体材质<input id="correctBase"></label>
+      <label>纹样主题<input id="correctTheme"></label>
+      <label>已领批次<select id="correctBatch"></select></label>
+      <div class="hint">更正后：旧贴线进度立即失效，新版回到待复核；旧版留档且不进当前队列。换批须重过准入与占用校验。</div>
+      <div class="actions">
+        <button id="correctSave" class="violet">提交更正</button>
+        <button id="correctClose" class="secondary">关闭</button>
+      </div>
+    </div>
+  </dialog>
 
-    const form = document.querySelector("#workForm");
-    const board = document.querySelector("#board");
-    const statusFilter = document.querySelector("#statusFilter");
-    const themeFilter = document.querySelector("#themeFilter");
-    const sortMode = document.querySelector("#sortMode");
-    const dialog = document.querySelector("#detailDialog");
-
-    form.dryDate.value = today;
-    form.delivery.value = new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10);
-    statusFilter.innerHTML = `<option value="">全部状态</option>` + statuses.map(s => `<option>${s}</option>`).join("");
-
-    function save() {
-      localStorage.setItem(storageKey, JSON.stringify(works));
-    }
-
-    function filtered() {
-      return works
-        .filter(w => !statusFilter.value || w.status === statusFilter.value)
-        .filter(w => !themeFilter.value || w.theme.includes(themeFilter.value.trim()))
-        .sort((a, b) => (a[sortMode.value] || "").localeCompare(b[sortMode.value] || ""));
-    }
-
-    function updateStatus(id, status) {
-      const work = works.find(w => w.id === id);
-      work.status = status;
-      if (status === "待阴干") work.dryDate = new Date().toISOString().slice(0, 10);
-      if (status === "上金粉") work.gold = "已上金粉";
-      if (status === "待交付") work.progress = 100;
-      work.logs.push(`${new Date().toLocaleString()} 更新为 ${status}`);
-      save();
-      render();
-    }
-
-    function recordDefect(id, text) {
-      const work = works.find(w => w.id === id);
-      const value = text || prompt("输入断线/翘线位置");
-      if (!value) return;
-      work.defect = work.defect ? `${work.defect}; ${value}` : value;
-      work.logs.push(`${new Date().toLocaleString()} 缺陷：${value}`);
-      save();
-      render();
-    }
-
-    function showDetail(id) {
-      activeId = id;
-      const w = works.find(item => item.id === id);
-      document.querySelector("#detailTitle").textContent = `${w.theme} · ${w.base}`;
-      document.querySelector("#detailContent").innerHTML = `
-        胎体材质：${w.base}<br>线条粗细：${w.line}<br>贴线进度：${w.progress}%<br>
-        阴干日期：${w.dryDate}<br>金粉状态：${w.gold}<br>缺陷位置：${w.defect || "无"}<br>
-        交付日期：${w.delivery}<br>当前状态：${w.status}<br>备注：${w.note || "无"}<br>
-        流转记录：${w.logs.join(" / ")}
-      `;
-      document.querySelector("#defectInput").value = "";
-      dialog.showModal();
-    }
-
-    function renderSummaries() {
-      const todayDry = works.filter(w => w.dryDate <= today && w.status === "待阴干");
-      const defects = works.filter(w => w.defect);
-      const delivery = [...works].sort((a, b) => a.delivery.localeCompare(b.delivery)).slice(0, 4);
-      document.querySelector("#todayDry").innerHTML = todayDry.length ? todayDry.map(w => `<div class="item" onclick="showDetail('${w.id}')"><b>${w.theme}</b><div class="meta">${w.base} · ${w.dryDate}</div></div>`).join("") : `<div class="empty">暂无</div>`;
-      document.querySelector("#defectList").innerHTML = defects.length ? defects.map(w => `<div class="item overdue" onclick="showDetail('${w.id}')"><b>${w.theme}</b><div class="meta">${w.defect}</div></div>`).join("") : `<div class="empty">暂无</div>`;
-      document.querySelector("#deliveryList").innerHTML = delivery.map(w => `<div class="item" onclick="showDetail('${w.id}')"><b>${w.theme}</b><div class="meta">${w.delivery} · ${w.status}</div></div>`).join("");
-    }
-
-    function renderBoard() {
-      const list = filtered();
-      board.innerHTML = statuses.map(status => {
-        const cards = list.filter(w => w.status === status);
-        return `<section class="col">
-          <h3><span>${status}</span><span>${cards.length}</span></h3>
-          ${cards.length ? cards.map(w => `<article class="item ${w.defect ? "overdue" : ""}" onclick="showDetail('${w.id}')">
-            <b>${w.theme}</b>
-            <div class="meta">${w.base} · ${w.line}<br>进度 ${w.progress}% · 阴干 ${w.dryDate}<br>金粉：${w.gold} · 交付：${w.delivery}<br>${w.defect ? "缺陷：" + w.defect : "缺陷：无"}</div>
-            <div class="actions" onclick="event.stopPropagation()">
-              ${statuses.map(s => `<button class="${s === status ? "secondary" : ""}" onclick="updateStatus('${w.id}', '${s}')">${s}</button>`).join("")}
-              <button class="warn" onclick="recordDefect('${w.id}')">记缺陷</button>
-            </div>
-          </article>`).join("") : `<div class="empty">暂无作品</div>`}
-        </section>`;
-      }).join("");
-    }
-
-    function render() {
-      renderSummaries();
-      renderBoard();
-    }
-
-    form.addEventListener("submit", event => {
-      event.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      works.unshift({
-        id: crypto.randomUUID(),
-        base: data.base,
-        theme: data.theme,
-        line: data.line,
-        progress: Number(data.progress),
-        dryDate: data.dryDate,
-        gold: data.gold,
-        defect: data.defect,
-        delivery: data.delivery,
-        status: data.status,
-        note: data.note,
-        logs: [`${new Date().toLocaleString()} 创建作品`]
-      });
-      form.reset();
-      form.dryDate.value = today;
-      form.delivery.value = new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10);
-      save();
-      render();
-    });
-
-    document.querySelector("#saveDefect").addEventListener("click", () => {
-      recordDefect(activeId, document.querySelector("#defectInput").value.trim());
-      showDetail(activeId);
-    });
-    document.querySelector("#closeDialog").addEventListener("click", () => dialog.close());
-    document.querySelector("#clearFilters").addEventListener("click", () => {
-      themeFilter.value = "";
-      statusFilter.value = "";
-      render();
-    });
-    [statusFilter, themeFilter, sortMode].forEach(el => el.addEventListener("input", render));
-    document.querySelector("#exportBtn").addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(works, null, 2)], { type: "application/json" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "lacquer-thread-works.json";
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-
-    window.updateStatus = updateStatus;
-    window.recordDefect = recordDefect;
-    window.showDetail = showDetail;
-    save();
-    render();
-  </script>
+  <script src="rules.js"></script>
+  <script src="storage.js"></script>
+  <script src="page.js"></script>
 </body>
 </html>
